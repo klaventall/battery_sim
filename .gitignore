@@ -1,0 +1,14 @@
+*~
+dist/**
+VERSION
+**.pyc
+*.egg-info
+cache
+.coverage
+# OS generated files #
+######################
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+scratch.py

@@ -1,4 +1,5 @@
-# testapp
+# battery_sim
+
 This document will show you how to run this application. 
 
 It is recommended you run this application from a virtual environment.
@@ -23,4 +24,4 @@ If you run into the issue "Could not find any downloads that satisfy the require
 
     $ sudo pip install --upgrade -r requirements.txt
 
-# battery_sim
+
