@@ -1,8 +1,9 @@
-Flask==0.10.1
-simplejson==2.3.2
-numpy==1.10.1
-pandas==0.18.0
-pytz==2013d
-httplib2==0.8
-pandas-highcharts==0.5.2
+Flask
+simplejson
+numpy
+scipy
+pandas
+pytz
+pandas-highcharts
+cvxpy
 nose
