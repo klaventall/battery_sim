@@ -35,6 +35,7 @@ class BatterySimulator(object):
         A = np.diag([1]*(T), k=-1)
 
         cost = cvx.Minimize(self.cost_function(u,load,util_rate_generator,dcac_eff))
+        #cost = cvx.Minimize(.2*load.T*(load + u))
         constraints = [
             s == A*s + cvx.vstack(0, acdc_eff*u),
             s <= C,
@@ -72,44 +73,49 @@ class BatterySimulator(object):
         uno = np.ones([const.HORIZON,1])
         # energy rate costs
         tot_load = load + self.dcac_eff * u
-        cost += urg.energy_peak_charge      * np.dot(urg.peak_mat, tot_load)
+        cost += urg.energy_peak_charge * np.dot(urg.peak_mat, tot_load)
         cost += urg.energy_part_peak_charge * np.dot(urg.part_peak_mat, tot_load)
         cost += urg.energy_off_peak_charge  * np.dot(urg.off_peak_mat, tot_load)
         # demand rate costs
-        #cost += np.amax(urg.demand_peak_charge * urg.peak_mat * tot_load) * uno
-        #cost += np.amax(urg.demand_part_peak_charge * urg.part_peak_mat * tot_load) * uno
-        #cost += np.amax(urg.demand_max_charge * urg.all_peak_mat * tot_load) * uno
+        cost += np.amax(urg.demand_peak_charge * np.dot(urg.peak_mat, tot_load)) * uno
+        cost += np.amax(urg.demand_part_peak_charge * np.dot(urg.peak_mat, tot_load)) * uno
+        cost += np.amax(urg.demand_max_charge * np.dot(urg.peak_mat, tot_load)) * uno
 
         return cost
 
     def plot_output(self,util_rate, load, horizon):
 
         T = horizon
-        plt.figure(1)
-        t = np.linspace(1, T, num=T).reshape(T,1)
-        plt.plot(t/4, util_rate, 'g', label=r"$p$");
-        plt.plot(t/4, load, 'r', label=r"$u$");
+        # plt.figure(1)
+        # t = np.linspace(1, T, num=T).reshape(T,1)
+        # plt.plot(t/4, util_rate, 'g', label=r"$p$");
+        # plt.plot(t/4, load, 'r', label=r"$u$");
         
-        plt.ylabel("$")
-        plt.xlabel("t")
-        plt.legend()
-        plt.show()
+        # plt.ylabel("$")
+        # plt.xlabel("t")
+        # plt.legend()
+        # plt.show()
 
-
-        plt.figure(2)
+        plt.figure(1)
         ts = np.linspace(1, T, num=T).reshape(T,1)/4
-        plt.subplot(3,1,1)
-        plt.plot(ts, load, 'r');
-        plt.plot(ts, self.optimal_u.value, 'b');
+        
+        plt.subplot(4,1,1)
+        plt.plot(ts, self.optimal_u.value, 'r');
+        plt.plot(ts, 0*np.ones([T,1]), color='b', linestyle='--')
         plt.xlabel('t')
-        plt.ylabel('load, battey power')
-        plt.legend(['load', 'u(t)'])
-        plt.subplot(3,1,2)
+        plt.ylabel('u(t)')
+        
+        plt.subplot(4,1,2)
         plt.plot(ts, util_rate, 'b');
         plt.xlabel('t')
-        plt.ylabel('util rate ($/kwH)')
+        plt.ylabel('cost')
+        
+        plt.subplot(4,1,3)
+        plt.plot(ts, load, 'r');
+        plt.xlabel('t')
+        plt.ylabel('load')
 
-        plt.subplot(3,1,3)
+        plt.subplot(4,1,4)
         plt.plot(ts, self.optimal_s.value[0:-1], 'b');
         plt.xlabel('t')
         plt.ylabel('kWh')

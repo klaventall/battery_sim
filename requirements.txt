@@ -1,9 +1,7 @@
 Flask
-simplejson
 numpy
 scipy
 pandas
 pytz
-pandas-highcharts
 cvxpy
 nose

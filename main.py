@@ -9,7 +9,10 @@ import matplotlib.pyplot as plt
 from controller.test import run_control
 from battery_simulator import BatterySimulator
 from utility_rate_generator import UtilityRateGenerator
+from load_generator import generate_load_data
 import const
+import matplotlib.pyplot as plt
+
 
 
 def scratch():
@@ -31,7 +34,13 @@ def scratch():
 
     urg = UtilityRateGenerator()
     #urg.plot_peak_periods()
-    load = np.array([15] * const.HORIZON).reshape(const.HORIZON,1)
+    load = generate_load_data()
+    #T = const.HORIZON
+    #ts = np.linspace(1, T, num=T).reshape(T,1)/4
+    #load = 100 + np.array(50 * np.sin(2 * np.pi*ts/50))
+
+    #plt.plot(load)
+    #plt.show()
 
     battery_controller = BatterySimulator(max_capacity=35, max_power_output=5, acdc_eff=1, dcac_eff = 1)
     battery_controller.run(util_rate_generator=urg, load=load)
