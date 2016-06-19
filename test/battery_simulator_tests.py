@@ -4,28 +4,13 @@ import numpy as np
 import battery_sim.const as const
 from battery_sim.battery_simulator import BatterySimulator
 from battery_sim.utility_rate_generator import UtilityRateGenerator
+from base import SimTestBase
 
-class BatterySimulatorTest(unittest.TestCase):
+class BatterySimulatorTest(SimTestBase):
     delta = float(10e-5)
 
     def setUp(self):
         super(BatterySimulatorTest, self).setUp()
-
-        const.DAILY_UNITS = 4 * 24
-        const.NUM_DAYS = 7
-        const.HORIZON = 4 * 24 * 7
-
-        const.PEAK_TIME_RANGE = [12., 18.]
-        const.PART_PEAK_TIME_RANGE = [[8.5, 12.],[18., 21.5]]
-        const.OFF_PEAK_TIME_RANGE =  [[0., 8.5], [21.5, 24.]]
-
-        const.ENERGY_PEAK_CHARGE = 1
-        const.ENERGY_PART_PEAK_CHARGE = 1
-        const.ENERGY_OFF_PEAK_CHARGE = 1
-
-        const.DEMAND_PEAK_CHARGE = 1
-        const.DEMAND_PART_PEAK_CHARGE = 1
-        const.DEMAND_MAX_CHARGE = 1
 
     def test_cost_function(self):
         """
@@ -98,9 +83,6 @@ class BatterySimulatorTest(unittest.TestCase):
         battery_controller = BatterySimulator(max_capacity=10, max_power_output=5, acdc_eff=1, dcac_eff = 1, cvxmode=True)
         battery_controller.run(urg,load)
 
-        self.assertGreaterEqual( battery_controller.optimal_cost, upper_bound_cost)
+        self.assertGreaterEqual(upper_bound_cost, battery_controller.optimal_cost)
 
-        print battery_controller.problem.constraints
-
-        self.assertTrue(False)
-
+  

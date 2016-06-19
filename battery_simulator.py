@@ -63,7 +63,7 @@ class BatterySimulator(object):
         self.optimal_cost = optval
         self.optimal_s = s
         self.optimal_u = u
-        self.problem = problem
+        self.problem = prob
 
     def cost_function(self, u, load, urg, energy_metric, demand_metric):
         cost = 0

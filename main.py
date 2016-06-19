@@ -1,7 +1,5 @@
 import sys
-
 import argparse
-
 import numpy as np
 import cvxpy as cvx
 import matplotlib.pyplot as plt
@@ -10,27 +8,10 @@ from battery_simulator import BatterySimulator
 from utility_rate_generator import UtilityRateGenerator
 from load_generator import generate_load_data
 import const
-import matplotlib.pyplot as plt
-from config import Config
-
-
+from const import set_const
 
 def scratch():
-    const.DAILY_UNITS = 4 * 24
-    const.NUM_DAYS = 7
-    const.HORIZON = 4 * 24 * 7
-
-    const.PEAK_TIME_RANGE = [12., 18.]
-    const.PART_PEAK_TIME_RANGE = [[8.5, 12.],[18., 21.5]]
-    const.OFF_PEAK_TIME_RANGE =  [[0., 8.5], [21.5, 24.]]
-
-    const.ENERGY_PEAK_CHARGE = 0.14683
-    const.ENERGY_PART_PEAK_CHARGE = 0.10671
-    const.ENERGY_OFF_PEAK_CHARGE = 0.08014
-
-    const.DEMAND_PEAK_CHARGE = 18.74
-    const.DEMAND_PART_PEAK_CHARGE = 5.23
-    const.DEMAND_MAX_CHARGE = 15.96
+    set_const(const)
     # cfg_file = file('prodconfig.cfg')
     # cfg = Config(cfg_file)
     # print cfg.DEMAND_PEAK_CHARGE
