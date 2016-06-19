@@ -14,7 +14,7 @@ def generate_load_data():
         next(rowreader)  # skip header row
         raw_load = [float(row[1]) for row in rowreader]
 
-    with open('generation_data_2.csv', 'rU') as csvfile:
+    with open('generation_data.csv', 'rU') as csvfile:
         rowreader = csv.reader(csvfile)
         next(rowreader)  # skip header row
         raw_solar_load = [float(row[1]) for row in rowreader]

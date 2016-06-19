@@ -8,7 +8,9 @@ class BatterySimulator(object):
     An object which can simulate control of the charge and discharge 
     of a battery such that energy costs are minimized.
     """
-    def __init__(self, max_capacity=40, max_power_output=20, acdc_eff=0.95, dcac_eff=0.9):
+    def __init__(self, max_capacity=40, max_power_output=20, acdc_eff=0.95, dcac_eff=0.9, cvxmode=True):
+        self.cvxmode = cvxmode
+
         self.max_capacity = max_capacity
         self.max_power_output = max_power_output
         self.acdc_eff = acdc_eff
@@ -17,7 +19,7 @@ class BatterySimulator(object):
         self.optimal_battery_u = None
         self.optimal_battery_s = None
         self.optimal_cost = None
-
+        self.problem = None
 
     def run(self, util_rate_generator, load):
         """
@@ -61,30 +63,31 @@ class BatterySimulator(object):
         self.optimal_cost = optval
         self.optimal_s = s
         self.optimal_u = u
+        self.problem = problem
 
     def cost_function(self, u, load, urg, energy_metric, demand_metric):
         cost = 0
         tot_load = load + self.dcac_eff * u
 
         # energy rate costs
-        cost += energy_metric(urg.energy_peak_charge * self.matrix_multiply(urg.peak_mat , tot_load, cvxmode=True))
-        cost += energy_metric(urg.energy_part_peak_charge * self.matrix_multiply(urg.part_peak_mat , tot_load, cvxmode=True))
-        cost += energy_metric(urg.energy_off_peak_charge * self.matrix_multiply(urg.off_peak_mat , tot_load, cvxmode=True))
+        cost += energy_metric(urg.energy_peak_charge * self.matrix_multiply(urg.peak_mat , tot_load))
+        cost += energy_metric(urg.energy_part_peak_charge * self.matrix_multiply(urg.part_peak_mat , tot_load))
+        cost += energy_metric(urg.energy_off_peak_charge * self.matrix_multiply(urg.off_peak_mat , tot_load))
 
         # demand rate costs
-        cost += demand_metric(urg.demand_peak_charge * self.matrix_multiply(urg.peak_mat, tot_load, cvxmode=True))
-        cost += demand_metric(urg.demand_part_peak_charge * self.matrix_multiply(urg.part_peak_mat, tot_load, cvxmode=True))
-        cost += demand_metric(urg.demand_max_charge * self.matrix_multiply(urg.all_peak_mat, tot_load, cvxmode=True))
+        cost += demand_metric(urg.demand_peak_charge * self.matrix_multiply(urg.peak_mat, tot_load))
+        cost += demand_metric(urg.demand_part_peak_charge * self.matrix_multiply(urg.part_peak_mat, tot_load))
+        cost += demand_metric(urg.demand_max_charge * self.matrix_multiply(urg.all_peak_mat, tot_load))
 
         return cost
 
-    def matrix_multiply(self, A, B, cvxmode=False):
+    def matrix_multiply(self, A, B):
         """
         helper function to select multiplacation method. 
         for some reason, cvxpy does not accept np.dot, 
         but numpy doesn't accept '*'.
         """
-        return A*B if cvxmode else np.dot(A, B)
+        return A*B if self.cvxmode else np.dot(A, B)
 
     def cost_over_time(self, u, load, urg):
         uno = np.ones([const.HORIZON,1])

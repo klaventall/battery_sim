@@ -6,12 +6,12 @@ import numpy as np
 import cvxpy as cvx
 import matplotlib.pyplot as plt
 
-from controller.test import run_control
 from battery_simulator import BatterySimulator
 from utility_rate_generator import UtilityRateGenerator
 from load_generator import generate_load_data
 import const
 import matplotlib.pyplot as plt
+from config import Config
 
 
 
@@ -31,6 +31,10 @@ def scratch():
     const.DEMAND_PEAK_CHARGE = 18.74
     const.DEMAND_PART_PEAK_CHARGE = 5.23
     const.DEMAND_MAX_CHARGE = 15.96
+    # cfg_file = file('prodconfig.cfg')
+    # cfg = Config(cfg_file)
+    # print cfg.DEMAND_PEAK_CHARGE
+    # sys.exit(1)
 
     urg = UtilityRateGenerator()
     #urg.plot_peak_periods()
@@ -41,6 +45,7 @@ def scratch():
 
     #plt.plot(load)
     #plt.show()
+ 
 
     battery_controller = BatterySimulator(max_capacity=35, max_power_output=5, acdc_eff=1, dcac_eff = 1)
     battery_controller.run(util_rate_generator=urg, load=load)
