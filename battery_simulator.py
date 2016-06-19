@@ -9,8 +9,6 @@ class BatterySimulator(object):
     of a battery such that energy costs are minimized.
     """
     def __init__(self, max_capacity=40, max_power_output=20, acdc_eff=0.95, dcac_eff=0.9, cvxmode=True):
-        self.cvxmode = cvxmode
-
         self.max_capacity = max_capacity
         self.max_power_output = max_power_output
         self.acdc_eff = acdc_eff
@@ -68,9 +66,12 @@ class BatterySimulator(object):
     def cost_function(self, u, load, urg, energy_metric, demand_metric):
         cost = 0
         tot_load = load + self.dcac_eff * u
-
+       
         # energy rate costs
         cost += energy_metric(urg.energy_peak_charge * self.matrix_multiply(urg.peak_mat , tot_load))
+        if isinstance(cost, (np.ndarray, np.generic)):
+            print "cost: ", urg.energy_peak_charge, urg.peak_mat.shape, tot_load.shape, self.matrix_multiply(urg.part_peak_mat , tot_load).shape, cost.shape
+
         cost += energy_metric(urg.energy_part_peak_charge * self.matrix_multiply(urg.part_peak_mat , tot_load))
         cost += energy_metric(urg.energy_off_peak_charge * self.matrix_multiply(urg.off_peak_mat , tot_load))
 
@@ -87,52 +88,61 @@ class BatterySimulator(object):
         for some reason, cvxpy does not accept np.dot, 
         but numpy doesn't accept '*'.
         """
-        return A*B if self.cvxmode else np.dot(A, B)
+        cvxmode = isinstance(A, cvx.atoms.affine.add_expr.AddExpression) or isinstance(B, cvx.atoms.affine.add_expr.AddExpression)
+        return A*B if cvxmode else np.dot(A, B)
 
     def cost_over_time(self, u, load, urg):
-        uno = np.ones([const.HORIZON,1])
-        cost = np.zeros([const.HORIZON,1])
-
         energy_metric = lambda x : x
-        demand_metric = lambda x: np.amax(x) * uno
+        demand_metric = lambda x: np.amax(x) * np.ones([const.HORIZON,1])
 
         return self.cost_function(u, load, urg, energy_metric, demand_metric)
 
-    def plot_output(self,util_rate, load, horizon):
+    def plot_output(self, urg, load):
+        # compute the cost over time with the optimal battery scheduel
+        cost = self.cost_over_time(self.optimal_u.value, load, urg)
 
-        T = horizon
-        # plt.figure(1)
-        # t = np.linspace(1, T, num=T).reshape(T,1)
-        # plt.plot(t/4, util_rate, 'g', label=r"$p$");
-        # plt.plot(t/4, load, 'r', label=r"$u$");
-        
-        # plt.ylabel("$")
-        # plt.xlabel("t")
-        # plt.legend()
-        # plt.show()
+        # compute the cost over time if there were no battery
+        u0 = np.zeros([const.HORIZON,1]).reshape(const.HORIZON,1)
+        raw_cost = self.cost_over_time(u0, load, urg)
 
-        plt.figure(1)
+        T = const.HORIZON
+ 
+        fig = plt.figure(1)
         ts = np.linspace(1, T, num=T).reshape(T,1)/4
         
         plt.subplot(4,1,1)
-        plt.plot(ts, self.optimal_u.value, 'r');
-        plt.plot(ts, 0*np.ones([T,1]), color='b', linestyle='--')
-        plt.xlabel('t')
-        plt.ylabel('u(t)')
+        ax1 = fig.add_subplot(411)
+        l1 = ax1.plot(ts, self.optimal_u.value,'r.-')
+        ax1.plot(ts, np.zeros([T,1]), color='k', linestyle='--')
+        plt.ylabel("bat. output (kW)")
+
+        ax2 = fig.add_subplot(411, sharex=ax1, frameon=False)
+        l2 = ax2.plot(ts, cost, 'b')
+        ax2.yaxis.tick_right()
+        ax2.yaxis.set_label_position("right")
+        plt.ylabel("bat. cap. (kWh)")
+
+        plt.legend((l1, l2), ("u(t)", "s(t)"))
+
+
+        #ax2.plot(ts, 0*np.ones([T,1]), color='b', linestyle='--')
+        #plt.xlabel('t')
+        #plt.ylabel('u (kW)')
         
         plt.subplot(4,1,2)
-        plt.plot(ts, util_rate, 'b');
+        plt.plot(ts, np.transpose(np.ndarray.cumsum(cost)), 'b');
+        plt.plot(ts, np.transpose(np.ndarray.cumsum(raw_cost)), 'r')
         plt.xlabel('t')
-        plt.ylabel('cost')
+        plt.ylabel('cost ($)')
         
         plt.subplot(4,1,3)
-        plt.plot(ts, load, 'r');
+        plt.plot(ts, raw_cost-cost, 'r');
         plt.xlabel('t')
-        plt.ylabel('load')
+        plt.ylabel('load (kW)')
 
         plt.subplot(4,1,4)
-        plt.plot(ts, self.optimal_s.value[0:-1], 'b');
+        plt.plot(ts, self.optimal_s.value[0:-1], 'b')
         plt.xlabel('t')
-        plt.ylabel('kWh')
+        plt.ylabel('bat. storage (kWh)')
         plt.ylim((0, 40))
         plt.show()

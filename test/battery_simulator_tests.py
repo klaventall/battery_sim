@@ -16,7 +16,7 @@ class BatterySimulatorTest(SimTestBase):
         """
         Evaluate the correctness of our objective function
         """
-        battery_controller = BatterySimulator(max_capacity=0, max_power_output=0, acdc_eff=1, dcac_eff = 1, cvxmode=False)
+        battery_controller = BatterySimulator(max_capacity=0, max_power_output=0, acdc_eff=1, dcac_eff = 1)
         
         urg = UtilityRateGenerator()
         load = np.ones([const.HORIZON,1])
@@ -56,7 +56,7 @@ class BatterySimulatorTest(SimTestBase):
         )
 
     # now run the simulation. Results should be the same
-        battery_controller = BatterySimulator(max_capacity=0, max_power_output=0, acdc_eff=1, dcac_eff = 1, cvxmode=True)
+        battery_controller = BatterySimulator(max_capacity=0, max_power_output=0, acdc_eff=1, dcac_eff = 1
         battery_controller.run(urg,load)
         self.assertTrue( abs(expected_cost - battery_controller.optimal_cost) <= self.delta)
     
@@ -80,7 +80,7 @@ class BatterySimulatorTest(SimTestBase):
         )
 
         # now run the simulation. Results should less than the upper_bound_cost
-        battery_controller = BatterySimulator(max_capacity=10, max_power_output=5, acdc_eff=1, dcac_eff = 1, cvxmode=True)
+        battery_controller = BatterySimulator(max_capacity=10, max_power_output=5, acdc_eff=1, dcac_eff = 1)
         battery_controller.run(urg,load)
 
         self.assertGreaterEqual(upper_bound_cost, battery_controller.optimal_cost)
