@@ -20,13 +20,17 @@ class BatterySimulator(object):
 
 
     def run(self, util_rate_generator, load):
+        """
+        Given a load and a pricing scheme, computes the optimal
+        charge/discharge schedule for the battery which minimizes
+        total cost.
+        """
+
         # renamaing vars for readibility
         T = const.HORIZON
-        # battery params
+        # battery constraint params
         C = self.max_capacity
         M = self.max_power_output
-        acdc_eff = self.acdc_eff
-        dcac_eff = self.dcac_eff
         # energy storage of the battery
         s = cvx.Variable(T+1)
         # power output of the battery
@@ -34,10 +38,14 @@ class BatterySimulator(object):
         # state matrix
         A = np.diag([1]*(T), k=-1)
 
-        cost = cvx.Minimize(self.cost_function(u,load,util_rate_generator,dcac_eff))
+        # cost metrics for enery and demand
+        energy_metric = lambda x : cvx.norm(x,1)
+        demand_metric = lambda x : cvx.norm(x, 'inf')
+
+        cost = cvx.Minimize(self.cost_function(u, load , util_rate_generator, energy_metric, demand_metric))
         #cost = cvx.Minimize(.2*load.T*(load + u))
         constraints = [
-            s == A*s + cvx.vstack(0, acdc_eff*u),
+            s == A*s + cvx.vstack(0, self.acdc_eff*u),
             s <= C,
             s >= 0,
             u <= M,
@@ -46,7 +54,7 @@ class BatterySimulator(object):
         ]
         # sums problem objectives and concatenates constraints.
         prob = cvx.Problem(cost, constraints)
-
+        # add final stopping conditions on the battery
         prob.constraints += [s[T] == 0, s[0] == 0]
 
         optval = prob.solve()
@@ -54,34 +62,38 @@ class BatterySimulator(object):
         self.optimal_s = s
         self.optimal_u = u
 
-    def cost_function(self, u, load, urg, dcac_eff):
+    def cost_function(self, u, load, urg, energy_metric, demand_metric):
         cost = 0
         tot_load = load + self.dcac_eff * u
+
         # energy rate costs
-        cost += cvx.sum_entries(urg.energy_peak_charge * urg.peak_mat * tot_load)
-        cost += cvx.sum_entries(urg.energy_part_peak_charge * urg.part_peak_mat * tot_load)
-        cost += cvx.sum_entries(urg.energy_off_peak_charge * urg.off_peak_mat * tot_load)
+        cost += energy_metric(urg.energy_peak_charge * self.matrix_multiply(urg.peak_mat , tot_load, cvxmode=True))
+        cost += energy_metric(urg.energy_part_peak_charge * self.matrix_multiply(urg.part_peak_mat , tot_load, cvxmode=True))
+        cost += energy_metric(urg.energy_off_peak_charge * self.matrix_multiply(urg.off_peak_mat , tot_load, cvxmode=True))
+
         # demand rate costs
-        cost += cvx.max_entries(urg.demand_peak_charge * urg.peak_mat * tot_load)
-        cost += cvx.max_entries(urg.demand_part_peak_charge * urg.part_peak_mat * tot_load)
-        cost += cvx.max_entries(urg.demand_max_charge * urg.all_peak_mat * tot_load)
+        cost += demand_metric(urg.demand_peak_charge * self.matrix_multiply(urg.peak_mat, tot_load, cvxmode=True))
+        cost += demand_metric(urg.demand_part_peak_charge * self.matrix_multiply(urg.part_peak_mat, tot_load, cvxmode=True))
+        cost += demand_metric(urg.demand_max_charge * self.matrix_multiply(urg.all_peak_mat, tot_load, cvxmode=True))
 
         return cost
+
+    def matrix_multiply(self, A, B, cvxmode=False):
+        """
+        helper function to select multiplacation method. 
+        for some reason, cvxpy does not accept np.dot, 
+        but numpy doesn't accept '*'.
+        """
+        return A*B if cvxmode else np.dot(A, B)
 
     def cost_over_time(self, u, load, urg):
-        cost = np.zeros([const.HORIZON,1])
         uno = np.ones([const.HORIZON,1])
-        # energy rate costs
-        tot_load = load + self.dcac_eff * u
-        cost += urg.energy_peak_charge * np.dot(urg.peak_mat, tot_load)
-        cost += urg.energy_part_peak_charge * np.dot(urg.part_peak_mat, tot_load)
-        cost += urg.energy_off_peak_charge  * np.dot(urg.off_peak_mat, tot_load)
-        # demand rate costs
-        cost += np.amax(urg.demand_peak_charge * np.dot(urg.peak_mat, tot_load)) * uno
-        cost += np.amax(urg.demand_part_peak_charge * np.dot(urg.peak_mat, tot_load)) * uno
-        cost += np.amax(urg.demand_max_charge * np.dot(urg.peak_mat, tot_load)) * uno
+        cost = np.zeros([const.HORIZON,1])
 
-        return cost
+        energy_metric = lambda x : x
+        demand_metric = lambda x: np.amax(x) * uno
+
+        return self.cost_function(u, load, urg, energy_metric, demand_metric)
 
     def plot_output(self,util_rate, load, horizon):
 
