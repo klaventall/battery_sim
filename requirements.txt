@@ -1,6 +1,5 @@
 numpy
 scipy
-pandas
-pytz
 cvxpy
 nose
+matplotlib

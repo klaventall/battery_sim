@@ -24,16 +24,20 @@ If you run into the issue "Could not find any downloads that satisfy the require
 
     $ sudo pip install --upgrade -r requirements.txt
 
+If you run into an issue where you can't install numpy, install it from the command line:
+
+    $ pip install numpy
+
 Running the simulation
 -------------------------------
 To run the simulation with default load and solar data enter:
     $ python main.py run-sim
 
 To generate plots:
-    $ python main.py run-sim --plots
+    $ python main.py run-sim --plot
 
-If you want to past in custom load and solar data: 
-    $ python main.py run-sim --load_data somedatafile.csv --solar_data anotherdatafile.csv
+If you want to pass in custom load and solar data: 
+    $ python main.py run-sim --load_file somedatafile.csv --solar_file anotherdatafile.csv
 
 Note there are default data files included with the application. I had some trouble parsing the original files so
 the default files have been reformatted. Note that this simulation probably won't work with data of a different timescale 
