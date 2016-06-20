@@ -16,7 +16,7 @@ class UtilityRateGeneratorTest(SimTestBase):
         """
         urg = UtilityRateGenerator()
         load = np.ones([const.HORIZON,1])
-
+           
         self.assertEquals(np.linalg.norm(np.dot(urg.peak_mat, load),1), 120)
         self.assertEquals(np.linalg.norm(np.dot(urg.part_peak_mat, load),1), 140)
         self.assertEquals(np.linalg.norm(np.dot(urg.off_peak_mat, load),1), 412)

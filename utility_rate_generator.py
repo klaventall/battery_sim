@@ -14,10 +14,11 @@ class UtilityRateGenerator(object):
 
     def __init__(self):
         self.horizon = const.HORIZON
-        # energy and demand charges
-        self.energy_peak_charge = const.ENERGY_PEAK_CHARGE 
-        self.energy_part_peak_charge = const.ENERGY_PART_PEAK_CHARGE 
-        self.energy_off_peak_charge = const.ENERGY_OFF_PEAK_CHARGE 
+        # energy and demand charges. Divide by a facor of 4 to get 
+        # kWqh (qh = quarter hour)
+        self.energy_peak_charge = const.ENERGY_PEAK_CHARGE/4 
+        self.energy_part_peak_charge = const.ENERGY_PART_PEAK_CHARGE/4 
+        self.energy_off_peak_charge = const.ENERGY_OFF_PEAK_CHARGE/4 
 
         self.demand_peak_charge = const.DEMAND_PEAK_CHARGE 
         self.demand_part_peak_charge = const.DEMAND_PART_PEAK_CHARGE 

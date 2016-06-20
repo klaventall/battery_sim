@@ -67,18 +67,22 @@ class BatterySimulator(object):
         cost = 0
         tot_load = load + self.dcac_eff * u
        
-        # energy rate costs
-        cost += energy_metric(urg.energy_peak_charge * self.matrix_multiply(urg.peak_mat , tot_load))
-        if isinstance(cost, (np.ndarray, np.generic)):
-            print "cost: ", urg.energy_peak_charge, urg.peak_mat.shape, tot_load.shape, self.matrix_multiply(urg.part_peak_mat , tot_load).shape, cost.shape
+        # select out the load during time-of-use periods
+        peak_load = self.matrix_multiply(urg.peak_mat , tot_load) 
+        pt_peak_load  = self.matrix_multiply(urg.part_peak_mat , tot_load) 
+        off_peak_load = self.matrix_multiply(urg.off_peak_mat , tot_load)
+        all_peak_load = self.matrix_multiply(urg.all_peak_mat, tot_load)
 
-        cost += energy_metric(urg.energy_part_peak_charge * self.matrix_multiply(urg.part_peak_mat , tot_load))
-        cost += energy_metric(urg.energy_off_peak_charge * self.matrix_multiply(urg.off_peak_mat , tot_load))
+        # This is a hack. Finding the length of the non-zero entries
+        # energy rate costs
+        cost += energy_metric(urg.energy_peak_charge * peak_load) / np.sum(urg.peak_mat)
+        cost += energy_metric(urg.energy_part_peak_charge * pt_peak_load) / np.sum(urg.part_peak_mat)
+        cost += energy_metric(urg.energy_off_peak_charge * off_peak_load) / np.sum(urg.off_peak_mat)
 
         # demand rate costs
-        cost += demand_metric(urg.demand_peak_charge * self.matrix_multiply(urg.peak_mat, tot_load))
-        cost += demand_metric(urg.demand_part_peak_charge * self.matrix_multiply(urg.part_peak_mat, tot_load))
-        cost += demand_metric(urg.demand_max_charge * self.matrix_multiply(urg.all_peak_mat, tot_load))
+        cost += demand_metric(urg.demand_peak_charge * peak_load)
+        cost += demand_metric(urg.demand_part_peak_charge * pt_peak_load)
+        cost += demand_metric(urg.demand_max_charge * all_peak_load)
 
         return cost
 
@@ -91,58 +95,82 @@ class BatterySimulator(object):
         cvxmode = isinstance(A, cvx.atoms.affine.add_expr.AddExpression) or isinstance(B, cvx.atoms.affine.add_expr.AddExpression)
         return A*B if cvxmode else np.dot(A, B)
 
-    def cost_over_time(self, u, load, urg):
-        energy_metric = lambda x : x
-        demand_metric = lambda x: np.amax(x) * np.ones([const.HORIZON,1])
-
-        return self.cost_function(u, load, urg, energy_metric, demand_metric)
-
     def plot_output(self, urg, load):
-        # compute the cost over time with the optimal battery scheduel
-        cost = self.cost_over_time(self.optimal_u.value, load, urg)
-
-        # compute the cost over time if there were no battery
-        u0 = np.zeros([const.HORIZON,1]).reshape(const.HORIZON,1)
-        raw_cost = self.cost_over_time(u0, load, urg)
-
         T = const.HORIZON
  
-        fig = plt.figure(1)
+        uno = np.ones([T, 1])
+        peak = np.dot(urg.peak_mat, uno)
+        part_peak = np.dot(urg.part_peak_mat, uno)
+        off_peak = np.dot(urg.off_peak_mat, uno)
+
+
+        plt.figure(1)
         ts = np.linspace(1, T, num=T).reshape(T,1)/4
         
-        plt.subplot(4,1,1)
-        ax1 = fig.add_subplot(411)
-        l1 = ax1.plot(ts, self.optimal_u.value,'r.-')
-        ax1.plot(ts, np.zeros([T,1]), color='k', linestyle='--')
-        plt.ylabel("bat. output (kW)")
-
-        ax2 = fig.add_subplot(411, sharex=ax1, frameon=False)
-        l2 = ax2.plot(ts, cost, 'b')
-        ax2.yaxis.tick_right()
-        ax2.yaxis.set_label_position("right")
-        plt.ylabel("bat. cap. (kWh)")
-
-        plt.legend((l1, l2), ("u(t)", "s(t)"))
-
-
-        #ax2.plot(ts, 0*np.ones([T,1]), color='b', linestyle='--')
-        #plt.xlabel('t')
-        #plt.ylabel('u (kW)')
+        ax1 = plt.subplot(3,1,1)
+        plt.plot(ts, load, 'b', label='load');
+        plt.plot(ts, load + self.optimal_u.value, 'r', label='adj. load');
+        plt.ylabel("load (kW)")
+        plt.xlabel("t")
+        plt.title("Load")
+        #plt.axis("tight")
+        ax1.legend()
         
-        plt.subplot(4,1,2)
-        plt.plot(ts, np.transpose(np.ndarray.cumsum(cost)), 'b');
-        plt.plot(ts, np.transpose(np.ndarray.cumsum(raw_cost)), 'r')
-        plt.xlabel('t')
-        plt.ylabel('cost ($)')
-        
-        plt.subplot(4,1,3)
-        plt.plot(ts, raw_cost-cost, 'r');
-        plt.xlabel('t')
-        plt.ylabel('load (kW)')
+        ax2 = plt.subplot(3,1,2)
+        plt.plot(ts, self.optimal_u.value,'r.-')
+        plt.plot(ts, np.zeros([T,1]), color='k', linestyle='--')
+        ax2.legend()
 
-        plt.subplot(4,1,4)
+        plt.ylabel("u (kW)")
+        plt.xlabel('t')
+        plt.title("Battery Schedule (control output)")
+        #plt.axis("tight")
+
+        plt.subplot(3,1,3)
         plt.plot(ts, self.optimal_s.value[0:-1], 'b')
         plt.xlabel('t')
-        plt.ylabel('bat. storage (kWh)')
-        plt.ylim((0, 40))
+        plt.ylabel('s (kWqH)')
+        plt.title("Battery State (charge)")
+        #plt.axis("tight")
+
+        fig = plt.figure(2)
+ 
+        # and the first axes using subplot populated with data 
+        ax1 = fig.add_subplot(111)
+        line1 = ax1.plot(ts, self.optimal_u.value,'r.-', label='bat. load')
+        ax1.plot(ts, np.zeros([T,1]), color='k', linestyle='--')
+        plt.ylabel("u (kW)")
+
+        # now, the second axes that shares the x-axis with the ax1
+        ax2 = fig.add_subplot(111, sharex=ax1, frameon=False)
+        line2 = ax2.plot(ts, load, label='sys. load')
+        ax2.yaxis.tick_right()
+        ax2.yaxis.set_label_position("right")
+        plt.ylabel("load (kW)")
+        
+        ax1.legend(line1, 'bat. load')
+
+        lns = line1+line2
+        labs = [l.get_label() for l in lns]
+        ax1.legend(lns, labs, loc=0)
+
+        plt.title("Battery Load vs. Main Load")
+
+        # plt.figure(3)
+        # c_raw = np.ndarray.cumsum(raw_cost)
+        # c_opt = np.transpose(np.ndarray.cumsum(cost))
+        # ax = plt.subplot(2,1,1)
+        # plt.plot(ts, c_raw, 'r', label='max. cost')
+        # plt.plot(ts, c_opt, 'b', label='cost');
+        # plt.xlabel('t')
+        # plt.ylabel('cost ($)')
+        # plt.title("Cumulative Cost")
+        # ax.legend(loc='lower right')
+        
+        # plt.subplot(2,1,2)
+        # plt.plot(ts, raw_cost-cost, 'r');
+        # plt.xlabel('t')
+        # plt.ylabel('residulal ($)')
+        # plt.title("Marginal Cost Savings Over Time")
+
         plt.show()

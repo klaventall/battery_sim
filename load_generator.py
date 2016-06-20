@@ -20,7 +20,7 @@ def generate_load_data():
         raw_solar_load = [float(row[1]) for row in rowreader]
 
     # convert the solar load to kwH and extrapolate to 15-min intervals
-    solar_load = np.repeat(raw_solar_load, 4) / 4. / 1000.
+    solar_load = np.repeat(raw_solar_load, 4) / 1000.
 
     return np.array(raw_load - solar_load).reshape(const.HORIZON, 1)
 
