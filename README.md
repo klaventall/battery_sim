@@ -24,4 +24,22 @@ If you run into the issue "Could not find any downloads that satisfy the require
 
     $ sudo pip install --upgrade -r requirements.txt
 
+Running the simulation
+-------------------------------
+To run the simulation with default load and solar data enter:
+    $ python main.py run-sim
 
+To generate plots:
+    $ python main.py run-sim --plots
+
+If you want to past in custom load and solar data: 
+    $ python main.py run-sim --load_data somedatafile.csv --solar_data anotherdatafile.csv
+
+Note there are default data files included with the application. I had some trouble parsing the original files so
+the default files have been reformatted. Note that this simulation probably won't work with data of a different timescale 
+or a different length. 
+
+Running the unit tests
+---------------------------------
+Unit tests are run via nose:
+    $ nosetests

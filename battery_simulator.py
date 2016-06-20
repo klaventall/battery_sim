@@ -75,9 +75,9 @@ class BatterySimulator(object):
 
         # This is a hack. Finding the length of the non-zero entries
         # energy rate costs
-        cost += energy_metric(urg.energy_peak_charge * peak_load) / np.sum(urg.peak_mat)
-        cost += energy_metric(urg.energy_part_peak_charge * pt_peak_load) / np.sum(urg.part_peak_mat)
-        cost += energy_metric(urg.energy_off_peak_charge * off_peak_load) / np.sum(urg.off_peak_mat)
+        cost += energy_metric(urg.energy_peak_charge * peak_load) 
+        cost += energy_metric(urg.energy_part_peak_charge * pt_peak_load) 
+        cost += energy_metric(urg.energy_off_peak_charge * off_peak_load) 
 
         # demand rate costs
         cost += demand_metric(urg.demand_peak_charge * peak_load)

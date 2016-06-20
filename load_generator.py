@@ -3,18 +3,17 @@ import numpy as np
 import const
 import matplotlib.pyplot as plt
 
-def generate_load_data():
+def generate_load_data(load_file, solar_file):
     """
     Generate the net load post solar for one week of data.
     Assuming the solar load (wH) is evenly distributed over the full hour
     """
-
-    with open('load_data.csv', 'rU') as csvfile:
+    with open(load_file, 'rU') as csvfile:
         rowreader = csv.reader(csvfile)
         next(rowreader)  # skip header row
         raw_load = [float(row[1]) for row in rowreader]
 
-    with open('generation_data.csv', 'rU') as csvfile:
+    with open(solar_file, 'rU') as csvfile:
         rowreader = csv.reader(csvfile)
         next(rowreader)  # skip header row
         raw_solar_load = [float(row[1]) for row in rowreader]

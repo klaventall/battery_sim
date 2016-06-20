@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.4.25)  19 JUN 2016 19:52
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2016.4.25)  19 JUN 2016 21:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -220,9 +220,9 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/usr/local/texlive/2015basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2
 ]
-Overfull \hbox (27.21388pt too wide) in paragraph at lines 112--113
+Overfull \hbox (23.95003pt too wide) in paragraph at lines 112--113
 \OT1/cmr/m/n/12 rate pe-riod and $[\OML/cmm/m/it/12 Ax\OT1/cmr/m/n/12 ][] = 1$ 
-if it is. Four in-di-ca-tor ma-tricies $\OML/cmm/m/it/12 A[]; A[]; A[]$
+if it is. Four in-di-ca-tor ma-tri-ces $\OML/cmm/m/it/12 A[]; A[]; A[]$
  []
 
 [3] <figures/basicsummary.png, id=22, 1294.3557pt x 683.6742pt>
@@ -238,24 +238,23 @@ File: figures/loadVcost.png Graphic file (type png)
 <use figures/loadVcost.png>
 Package pdftex.def Info: figures/loadVcost.png used on input line 126.
 (pdftex.def)             Requested size: 390.0pt x 169.46213pt.
- [4 <./figures/basicsummary.png> <./figures/loadVcost.png>] <figures/realsummar
-y.png, id=30, 1299.4146pt x 656.2116pt>
-File: figures/realsummary.png Graphic file (type png)
+ [4 <./figures/basicsummary.png> <./figures/loadVcost.png>] <figures/realdatasu
+mmary.png, id=30, 1277.0109pt x 658.3797pt>
+File: figures/realdatasummary.png Graphic file (type png)
 
-<use figures/realsummary.png>
-Package pdftex.def Info: figures/realsummary.png used on input line 132.
-(pdftex.def)             Requested size: 390.0pt x 196.9451pt.
+<use figures/realdatasummary.png>
+Package pdftex.def Info: figures/realdatasummary.png used on input line 132.
+(pdftex.def)             Requested size: 390.0pt x 201.06168pt.
 
-<figures/costsummary.png, id=31, 1135.3617pt x 665.6067pt>
-File: figures/costsummary.png Graphic file (type png)
+<figures/batVsys.png, id=31, 1295.8011pt x 679.338pt>
+File: figures/batVsys.png Graphic file (type png)
 
-<use figures/costsummary.png>
-Package pdftex.def Info: figures/costsummary.png used on input line 138.
-(pdftex.def)             Requested size: 390.0pt x 228.63924pt.
-
+<use figures/batVsys.png>
+Package pdftex.def Info: figures/batVsys.png used on input line 136.
+(pdftex.def)             Requested size: 390.0pt x 204.45601pt.
+ [5 <./figures/realdatasummary.png> <./figures/batVsys.png>]
 No file battery_sim.bbl.
-[5 <./figures/realsummary.png> <./figures/costsummary.png>] [6]
-(./battery_sim.aux) ) 
+[6] (./battery_sim.aux) ) 
 Here is how much of TeX's memory you used:
  2492 strings out of 494501
  33320 string characters out of 6167030
@@ -263,19 +262,19 @@ Here is how much of TeX's memory you used:
  5738 multiletter control sequences out of 15000+600000
  12265 words of font info for 48 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 37i,19n,26p,684b,235s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2015basic/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015basic/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015basic/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2015basic/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2015basic/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015basic/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2015basic/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2015basic/texmf
--dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015basic/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2015basi
-c/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on battery_sim.pdf (6 pages, 667515 bytes).
+ 37i,19n,26p,717b,235s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2015basic/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2015basic/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2015basic/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2015basic/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2015basic/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2015basic/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2015basic/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2015basic/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2015bas
+ic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2015
+basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on battery_sim.pdf (6 pages, 726104 bytes).
 PDF statistics:
  72 PDF objects out of 1000 (max. 8388607)
  45 compressed objects within 1 object stream

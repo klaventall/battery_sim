@@ -15,9 +15,9 @@ class BatterySimulatorTest(SimTestBase):
     
     # This is the theoritical cost if there was no battery for a given load
     def expected_cost(self,load):
-        return float(np.linalg.norm(np.dot(self.urg.peak_mat,load),1)/120
-                        + np.linalg.norm(np.dot(self.urg.part_peak_mat,load),1)/140
-                        + np.linalg.norm(np.dot(self.urg.off_peak_mat,load),1)/412
+        return float(np.linalg.norm(np.dot(self.urg.peak_mat,load),1)
+                        + np.linalg.norm(np.dot(self.urg.part_peak_mat,load),1)
+                        + np.linalg.norm(np.dot(self.urg.off_peak_mat,load),1)
                         + np.linalg.norm(np.dot(self.urg.peak_mat,load), np.inf)
                         + np.linalg.norm(np.dot(self.urg.part_peak_mat,load), np.inf)
                         + np.linalg.norm(np.dot(self.urg.off_peak_mat,load),np.inf)

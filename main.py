@@ -10,13 +10,13 @@ from load_generator import generate_load_data, plot_load_data
 import const
 from const import set_const
 
-def run_sim(plot_on=False):
+def run_sim(load_file, solar_file, plot_on=False):
     # set up global static constants
     set_const(const)
  
     urg = UtilityRateGenerator()
     #urg.plot_peak_periods()
-    load = generate_load_data()
+    load = generate_load_data(load_file=load_file, solar_file=solar_file)
 
     battery_controller = BatterySimulator(max_capacity=4*40, max_power_output=20, acdc_eff=1, dcac_eff = 1)
     battery_controller.run(util_rate_generator=urg, load=load)
@@ -57,6 +57,9 @@ def main(argv=None):
     parser_sim = subparsers.add_parser('run-sim', help="displays results in local browser")
     parser_sim.set_defaults(cmd='run-sim')
     parser_sim.add_argument('--plot', action='store_true', help='Displays plots')
+    parser_sim.add_argument('--load_file', default='load_data.csv', help='Path to load data file')
+    parser_sim.add_argument('--solar_file', default='generation_data.csv', help='Path to load data file')
+
 
     parser_sanity = subparsers.add_parser('sanity-check', help="runs a simplified model to illustrate simulator dynamics")
     parser_sanity.set_defaults(cmd='sanity-check')
@@ -67,7 +70,7 @@ def main(argv=None):
     if args.cmd == "sanity-check":
         return example_run(args.plot)
     elif args.cmd =="run-sim":
-        return run_sim(args.plot)
+        return run_sim(args.load_file, args.solar_file, args.plot)
     else:
         raise NotImplementedError("Unknown command: {!r}".format(args.cmd))
 
